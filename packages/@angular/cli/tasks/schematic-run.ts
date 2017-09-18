@@ -11,6 +11,7 @@ import { FileSystemHost } from '@angular-devkit/schematics/tools';
 import { Observable } from 'rxjs/Observable';
 import * as path from 'path';
 import { green, red, yellow } from 'chalk';
+import { oneLine } from 'common-tags';
 import { CliConfig } from '../models/config';
 import 'rxjs/add/operator/concatMap';
 import 'rxjs/add/operator/map';
@@ -169,7 +170,16 @@ export default Task.extend({
           }]
         });
       }
-    });
+    })
+    .then(error ? this.afterRunFailure(options) : this.afterRunSuccess(options));
+  },
+  afterRunSuccess: function (options: SchematicRunOptions) {
+    if (options.schematicName === 'service' && !options.taskOptions.module) {
+      this.ui.writeLine(yellow(oneLine`Service is generated but not provided,
+      it must be provided to be used`));
+    }
+  },
+  afterRunFailure: function (options: SchematicRunOptions) {
   }
 });
 
